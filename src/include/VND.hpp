@@ -21,6 +21,7 @@ private:
     TSPSolution getConstructiveSolution();
     TSPSolution getTwoOptSolution(TSPSolution previousSolution);
     TSPSolution getThreeOptSolution(TSPSolution previousSolution);
+    double getCycleSize(vector<pair<int, int>> points);
 
 public:
     VND(vector<pair<int, int>> points, string weightType);

@@ -100,44 +100,157 @@ TSPSolution VND::getConstructiveSolution()
     return solution;
 }
 
-TSPSolution VND::getTwoOptSolution(TSPSolution previousSolution)
+double VND::getCycleSize(vector<pair<int, int>> points)
+{
+    int size = points.size();
+    double cycleSize = 0;
+
+    for (int i = 0; i < points.size() - 1; i++)
+    {
+        if (this->weightType == "EUC_2D")
+        {
+            cycleSize += getEuclideanDistance(points.at(i), points.at(i + 1));
+        }
+        else
+        {
+            cycleSize += getPseudoEuclideanDistance(points.at(i), points.at(i + 1));
+        }
+    }
+
+    if (this->weightType == "EUC_2D")
+    {
+        cycleSize += getEuclideanDistance(points.at(size - 1), points.at(0));
+    }
+    else
+    {
+        cycleSize += getPseudoEuclideanDistance(points.at(size - 1), points.at(0));
+    }
+
+    return cycleSize;
+}
+
+TSPSolution VND::getTwoOptSolution(TSPSolution bestSolution)
 {
     TSPSolution newSolution;
-    double minSolution = previousSolution.getValue();
-    int size = this->points.size();
+    double minSolution = bestSolution.getValue();
+    bool isSolutionImproved = true;
 
-    while (true)
+    while (isSolutionImproved)
     {
-        for (int i = 0; i < size; i++)
+        isSolutionImproved = false;
+        int size = bestSolution.getPoints().size();
+
+        for (int i = 0; i < size - 1; i++)
         {
-            for (int j = 0; j < size; j++)
+            for (int j = i + 1; j < size; j++)
             {
-                vector<pair<int, int>> twoOpt, aux;
+                vector<pair<int, int>> twoOptPoints, auxPoints;
                 for (int k = 0; k < i; k++)
                 {
-                    twoOpt.push_back(this->points.at(k));
+                    twoOptPoints.push_back(bestSolution.getPoints().at(k));
                 }
 
                 for (int k = i; k < j; k++)
                 {
-                    aux.push_back(this->points.at(k));
+                    auxPoints.push_back(bestSolution.getPoints().at(k));
                 }
 
-                reverse(aux.begin(), aux.end());
+                reverse(auxPoints.begin(), auxPoints.end());
 
-                for (int k = 0; k < aux.size(); k++)
+                for (int k = 0; k < auxPoints.size(); k++)
                 {
-                    twoOpt.push_back(aux.at(k));
+                    twoOptPoints.push_back(auxPoints.at(k));
                 }
 
                 for (int k = j; k < size; k++)
                 {
-                    twoOpt.push_back(this->points.at(k));
+                    twoOptPoints.push_back(bestSolution.getPoints().at(k));
+                }
+
+                double twoOptValue = getCycleSize(twoOptPoints);
+
+                newSolution.setPoints(twoOptPoints);
+                newSolution.setValue(twoOptValue);
+
+                if (newSolution.getValue() < minSolution)
+                {
+                    bestSolution = newSolution;
+                    minSolution = bestSolution.getValue();
+
+                    isSolutionImproved = true;
                 }
             }
         }
     }
-    return newSolution;
+    return bestSolution;
+}
+
+TSPSolution VND::getThreeOptSolution(TSPSolution bestSolution)
+{
+    TSPSolution newSolution;
+    double minSolution = bestSolution.getValue();
+    bool isSolutionImproved = true;
+    int size = bestSolution.getPoints().size();
+    
+    while (isSolutionImproved)
+    {
+        isSolutionImproved = false;
+
+        for (int i = 0; i < size - 2; i++)
+        {
+            for (int j = i + 1; j < size - 1; j++)
+            {
+                for (int l = j + 1; l < size; l++)
+                {
+                    vector<pair<int, int>> a, b, c;
+                    for (int k = 0; k < i; k++)
+                    {
+                        a.push_back(bestSolution.getPoints().at(k));
+                    }
+
+                    for (int k = i; k < j; k++)
+                    {
+                        b.push_back(bestSolution.getPoints().at(k));
+                    }
+
+                    for (int k = j; k < l; k++)
+                    {
+                        c.push_back(bestSolution.getPoints().at(k));
+                    }
+
+                    reverse(b.begin(), b.end());
+                    reverse(c.begin(), c.end());
+
+                    for (pair<int, int> k : c) {
+                        a.push_back(k);
+                    }
+
+                    for (pair<int, int> k : b) {
+                        a.push_back(k);
+                    }
+
+                    for (int k = l; k < size; k++)
+                    {
+                        a.push_back(bestSolution.getPoints().at(k));
+                    }
+
+                    double threeOptValue = getCycleSize(a);
+
+                    newSolution.setPoints(a);
+                    newSolution.setValue(threeOptValue);
+
+                    if (newSolution.getValue() < minSolution)
+                    {
+                        bestSolution = newSolution;
+                        minSolution = bestSolution.getValue();
+
+                        isSolutionImproved = true;
+                    }
+                }
+            }
+        }
+    }
+    return bestSolution;
 }
 
 double VND::tsp()
