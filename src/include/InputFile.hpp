@@ -10,10 +10,10 @@ class InputFile
 private:
     string fileName;
     void readLines(vector<string> &lines, int &numLines, int &numColumns);
-    void printVector(const vector<pair<double, double>> graph);
+    void printVector(const vector<pair<int, int>> graph);
 
 public:
     InputFile(string fileName);
     ~InputFile();
-    vector<pair<double, double>> getFileContent(string &name, string &weightType);
+    vector<pair<int, int>> getFileContent(string &name, string &weightType);
 };

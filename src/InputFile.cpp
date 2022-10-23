@@ -7,7 +7,7 @@ InputFile::InputFile(string fileName)
 
 InputFile::~InputFile() {}
 
-void InputFile::printVector(const vector<pair<double, double>> graph)
+void InputFile::printVector(const vector<pair<int, int>> graph)
 {
     for (int i = 0; i < graph.size(); i++)
     {
@@ -15,14 +15,14 @@ void InputFile::printVector(const vector<pair<double, double>> graph)
     }
 }
 
-vector<pair<double, double>> InputFile::getFileContent(string &name, string &weightType)
+vector<pair<int, int>> InputFile::getFileContent(string &name, string &weightType)
 {
-    vector<pair<double, double>> points;
+    vector<pair<int, int>> points;
 
     ifstream file;
     file.open(this->fileName);
     string word;
-    double x, y;
+    int x, y;
 
     while (file >> word)
     {
@@ -31,9 +31,9 @@ vector<pair<double, double>> InputFile::getFileContent(string &name, string &wei
             {
                 string point;
                 file >> point;
-                x = stod(point);
+                x = stoi(point);
                 file >> point;
-                y = stod(point);
+                y = stoi(point);
                 points.push_back({x, y});
             }
         if (word == "NAME:")
@@ -41,6 +41,5 @@ vector<pair<double, double>> InputFile::getFileContent(string &name, string &wei
         if (word == "EDGE_WEIGHT_TYPE:")
             file >> weightType;
     }
-    // print(points);
     return points;
 }
