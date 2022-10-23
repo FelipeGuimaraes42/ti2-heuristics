@@ -143,20 +143,32 @@ TSPSolution VND::getTwoOptSolution(TSPSolution previousSolution)
 double VND::tsp()
 {
     TSPSolution initialSolution = this->getConstructiveSolution();
+
+    TSPSolution solution(initialSolution.getValue(), initialSolution.getPoints());
     int k = 0;
+    double minSolution = solution.getValue();
 
-    TSPSolution solution;
+    while (k < MAX_TENTATIVES)
+    {
+        if (k == 0)
+        {
+            solution = this->getTwoOptSolution(solution);
+        }
+        else
+        {
+            solution = this->getThreeOptSolution(solution);
+        }
 
-    // while (k < 2)
-    // {
-    //     if (k == 0)
-    //     {
-    //     }
-    //     else
-    //     {
-    //         solution = this->getTwoOptSolution(initialSolution);
-    //     }
-    // }
+        if (solution.getValue() < minSolution)
+        {
+            minSolution = solution.getValue();
+            k = 0;
+        }
+        else
+        {
+            k++;
+        }
+    }
 
     return solution.getValue();
 }
