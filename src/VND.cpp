@@ -191,7 +191,7 @@ TSPSolution VND::getThreeOptSolution(TSPSolution bestSolution)
     double minSolution = bestSolution.getValue();
     bool isSolutionImproved = true;
     int size = bestSolution.getPoints().size();
-    
+
     while (isSolutionImproved)
     {
         isSolutionImproved = false;
@@ -221,11 +221,13 @@ TSPSolution VND::getThreeOptSolution(TSPSolution bestSolution)
                     reverse(b.begin(), b.end());
                     reverse(c.begin(), c.end());
 
-                    for (pair<int, int> k : c) {
+                    for (pair<int, int> k : c)
+                    {
                         a.push_back(k);
                     }
 
-                    for (pair<int, int> k : b) {
+                    for (pair<int, int> k : b)
+                    {
                         a.push_back(k);
                     }
 
@@ -253,6 +255,90 @@ TSPSolution VND::getThreeOptSolution(TSPSolution bestSolution)
     return bestSolution;
 }
 
+TSPSolution VND::getFourOptSolution(TSPSolution bestSolution)
+{
+    TSPSolution newSolution;
+    double minSolution = bestSolution.getValue();
+    bool isSolutionImproved = true;
+    int size = bestSolution.getPoints().size();
+
+    while (isSolutionImproved)
+    {
+        isSolutionImproved = false;
+
+        for (int i = 0; i < size - 3; i++)
+        {
+            for (int j = i + 1; j < size - 2; j++)
+            {
+                for (int l = j + 1; l < size - 1; l++)
+                {
+                    for (int m = l + 1; m < size; m++)
+                    {
+                        vector<pair<int, int>> a, b, c, d;
+                        for (int k = 0; k < i; k++)
+                        {
+                            a.push_back(bestSolution.getPoints().at(k));
+                        }
+
+                        for (int k = i; k < j; k++)
+                        {
+                            b.push_back(bestSolution.getPoints().at(k));
+                        }
+
+                        for (int k = j; k < l; k++)
+                        {
+                            c.push_back(bestSolution.getPoints().at(k));
+                        }
+
+                        for (int k = l; k < m; k++)
+                        {
+                            d.push_back(bestSolution.getPoints().at(k));
+                        }
+
+                        reverse(b.begin(), b.end());
+                        reverse(c.begin(), c.end());
+                        reverse(d.begin(), d.end());
+
+                        for (pair<int, int> k : d)
+                        {
+                            a.push_back(k);
+                        }
+
+                        for (pair<int, int> k : c)
+                        {
+                            a.push_back(k);
+                        }
+
+                        for (pair<int, int> k : b)
+                        {
+                            a.push_back(k);
+                        }
+
+                        for (int k = l; k < size; k++)
+                        {
+                            a.push_back(bestSolution.getPoints().at(k));
+                        }
+
+                        double fourOptValue = getCycleSize(a);
+
+                        newSolution.setPoints(a);
+                        newSolution.setValue(fourOptValue);
+
+                        if (newSolution.getValue() < minSolution)
+                        {
+                            bestSolution = newSolution;
+                            minSolution = bestSolution.getValue();
+
+                            isSolutionImproved = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return bestSolution;
+}
+
 double VND::tsp()
 {
     TSPSolution initialSolution = this->getConstructiveSolution();
@@ -267,9 +353,13 @@ double VND::tsp()
         {
             solution = this->getTwoOptSolution(solution);
         }
-        else
+        else if (k == 1)
         {
             solution = this->getThreeOptSolution(solution);
+        }
+        else
+        {
+            solution = this->getFourOptSolution(solution);
         }
 
         if (solution.getValue() < minSolution)
